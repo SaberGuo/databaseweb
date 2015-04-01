@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>yjc</title>
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+  <script type="text/javascript">
+var sign;
+
+var updater = {
+    poll: function(){
+        $.ajax({url: "/task_start", 
+                type: "POST", 
+                dataType: "text",
+                data:{'startingtask':$('td.startingtask').html()},
+                success: updater.onSuccess,
+                error: updater.onError});
+    },
+    onSuccess: function(data, dataStatus){
+        try{
+            $("td.taskdata").html(data);
+        }
+        catch(e){
+            updater.onError();
+            return;
+        }
+    },
+    onError: function(){
+        console.log("Poll error;");
+    }
+}
+
+function start(){
+    sign=window.setInterval(updater.poll, 4900);
+    $.ajax({
+      url:'/tasktime',
+      type:'POST',
+      dataType:'text',
+      data:{'startingtask':$('td.startingtask').html(),
+                'flag':0}
+    });
+    $('td.taskname').html($('td.startingtask').html());
+    document.getElementById('delete_button').disabled=true;
+}
+
+function stop(){
+    document.getElementById('delete_button').removeAttribute('disabled');
+    window.clearInterval(sign);
+    window.setTimeout(function(){
+        $("td.taskname").html('undefined');
+        $("td.taskdata").html('undefined');
+    },1500);
+    $.ajax({
+      url:'/tasktime',
+      type:'POST',
+      dataType:'text',
+      data:{'startingtask':$('td.startingtask').html(),
+                'flag':1}
+    });
+    window.setTimeout(function(){
+      window.location.href='/task';
+    }, 1000)
+}
+  </script>
+</head>
+<body>
+  <div>
+        <form name='Task_submit' method='post' action='task'>
+            <p>任务名称: <input type='text' name='taskname' /> {{warning}}</p>
+            <p>任务性质: <input type='text' name='attribute' /></p>
+            <p>任务备注: <input type='text' name='explanation' /></p>
+            <p>协议文件: 
+                <select name='profile'>
+                    <option>遥测数据</option>
+                    <option>回复数据</option>
+                    <option>命令数据</option>
+                </select>
+              </p>
+              <input type='hidden' name='isdelete' value='False'/>
+              <input type="submit" value="新建任务" />
+        </form>
+  </div>
+  <div>
+    <p>unfinished task list</p>
+    <table border="1">
+       <tr>
+           <th width=150>taskname</th>
+           <th width=225>attribute</th>
+           <th width=225>explanation</th>
+           <th width=225>profile</th>
+           <th width=225>operation</th>
+       </tr>
+       {%for i in unfinished_tasks%}
+       <tr>
+           <td class='startingtask'>{{i['taskname']}}</td>
+           <td>{{i['attribute']}}</td>
+           <td>{{i['explanation']}}</td>
+           <td>{{i['profile']}}</td>
+           <td>
+              <div>
+                 <center>
+                     <form action='task' method='post' name='Unfinished_task_delete'>
+                        <input type='hidden' name='taskname' value='{{i['taskname']}}'/>
+                        <input type='hidden' name='isdelete' value='True'/>
+                        <input id='delete_button' type="submit" value="删除" /> 
+                     </form>
+                 <center/>
+              </div>
+              <div>
+                 <center>
+                    <button onclick='start()' >任务开始</button>
+                    <button onclick='stop()' >任务结束</button>
+                 <center/>
+              </div>
+           </td>
+       </tr>
+       {%end%}
+    </table>
+  </div>
+  <div>
+    <p class='test'>task data viewer</p>
+    <table border='1'>
+      <tr>
+        <th width='150'>taskname</th>
+        <th width='900'>raw_data</th> 
+      </tr>
+      <tr>
+        <td class='taskname'>undefined</td>
+        <td class='taskdata'>undefined</td>
+      </tr>
+    </table>
+  </div>
+  <div>
+    <p>finished task list</p>
+    <table border="1">
+       <tr>
+           <th width=150>taskname</th>
+           <th width=150>attribute</th>
+           <th width=150>explanation</th>
+           <th width=150>start_time</th>
+           <th width=150>end_time</th>
+           <th width=150>profile</th>
+           <th width=150>operation</th>
+       </tr>
+       {%for i in finished_tasks%}
+       <tr>
+           <td>{{i['taskname']}}</td>
+           <td>{{i['attribute']}}</td>
+           <td>{{i['explanation']}}</td>
+           <td>{{i['start_time']}}</td>
+           <td>{{i['end_time']}}</td>
+           <td>{{i['profile']}}</td>
+           <td>
+               <div>
+                  <center>
+                    <form action='task' method='post' name='Finished_task_delete'> 
+                      <input type='hidden' name='taskname' value='{{i['taskname']}}'/>
+                      <input type='hidden' name='isdelete' value='True'/>
+                      <input type="submit" value="删除" />
+                    </form>
+                  <center/>
+               </div>
+               <div>
+                  <center>
+                    <form action='task_data_view' method='post' name='Task_data_view'>
+                      <input type="submit" value="查看该任务数据" /> 
+                      <input type='hidden' name='taskid' value='{{i['id']}}'/>
+                      <input type='hidden' name='taskname' value='{{i['taskname']}}'/>
+                      <input type='hidden' name='profile' value='{{i['profile']}}'/>
+                    </form>
+                  <center/>
+               </div>
+           </td>
+       </tr>
+       {%end%}
+    </table>
+  </div>
+</body>
+</html>
