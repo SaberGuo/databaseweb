@@ -82,7 +82,7 @@ class Task_starthandler(tornado.web.RequestHandler):
         self.write(data)
         self.finish() 
 
-class Tasktimehandler(tornado.web.RequestHandler):
+class Task_timehandler(tornado.web.RequestHandler):
     def post(self):
         if self.get_argument('flag')=='0':
             data=self.get_argument('startingtask')

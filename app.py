@@ -12,7 +12,7 @@ handlers=[
     (r'/task',Taskhandler),
     (r'/data',Datahandler),
     (r'/task_start',Task_starthandler),
-    (r'/tasktime', Tasktimehandler)
+    (r'/tasktime', Task_timehandler)
 ]
 
 settings={
