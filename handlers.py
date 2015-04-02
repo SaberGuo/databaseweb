@@ -28,7 +28,7 @@ class Taskhandler(tornado.web.RequestHandler):
                     unfinished_tasks.append(x)
                 else:
                     finished_tasks.append(x)
-        return self.render('task.html',warning=warning, unfinished_tasks=unfinished_tasks, finished_tasks=finished_tasks)
+        return self.render('tasks.html',warning=warning, unfinished_tasks=unfinished_tasks, finished_tasks=finished_tasks)
 
     def post(self):
         warning=''

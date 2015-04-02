@@ -8,8 +8,8 @@ from handlers import *
 import db
 
 handlers=[
-    (r'/',Mainhandler),
-    (r'/task',Taskhandler),
+    (r'/',Taskhandler),
+    (r'/tasks',Taskhandler),
     (r'/data',Datahandler),
     (r'/task_start',Task_starthandler),
     (r'/tasktime', Task_timehandler)
@@ -23,5 +23,5 @@ settings={
 
 app=tornado.web.Application(handlers, **settings)
 app.listen(8080)
-db.create_engine('yjc','','databaseweb')
+db.create_engine('root','','databaseweb')
 tornado.ioloop.IOLoop.instance().start()
